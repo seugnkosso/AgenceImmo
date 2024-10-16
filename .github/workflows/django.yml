@@ -2,9 +2,9 @@ name : 'agenceImmo'
 
 on:
   push:
-    branches: [ deploy ]
+    branches: [ main ]
   pull_request:
-    branches: [ deploy ]
+    branches: [ main ]
 
 concurrency:
     group: ${{ github.head_ref || github.run_id }}
@@ -17,7 +17,7 @@ jobs:
     strategy:
       max-parallel: 2
       matrix:
-        python-version: [3.12.7]
+        python-version: [3.9, 3.10 ,3.12]
 
     steps:
     - name: Checkout Code Repository
@@ -46,8 +46,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name : install Heroku CLI
-        run : |
-            curl https://cli-assets.heroku.com/install.sh | sh
+        run : curl https://cli-assets.heroku.com/install.sh | sh
 
       - name : set Heroku BuildPack
         run : heroku buildpacks:set heroku/python -a ${{ secrets.HEROKU_APP_NAME }}
@@ -64,7 +63,7 @@ jobs:
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
           heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
           heroku_email: serigne-kosso.dieng@ism.edu.sn
-          branch: deploy
+          branch: main
           dontuseforce: 1
       
       - name : Run heroku ps:scale
