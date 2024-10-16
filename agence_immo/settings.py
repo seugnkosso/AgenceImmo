@@ -10,9 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import os
-import environ
-env = environ.Env()
-environ.Env.read_env()
 from pathlib import Path
 from decouple import config
 
@@ -24,17 +21,12 @@ TEMPLATES_DIR = BASE_DIR / 'templates'
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-q0hy5qb@3ptw8)8h65b0pc^86fxc8!x$8elx4#w(77&cy9pa%&'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    '*',
-    '127.0.0.1',
-    'localhost',
-    '192.168.1.90'
-]
+ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS').split(',')
 
 
 # Application definition
@@ -64,6 +56,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'agence_immo.urls'
+
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 TEMPLATES = [
@@ -157,6 +150,7 @@ CSRF_TRUSTED_ORIGINS = [
         'http://192.168.1.90',    
         'http://127.0.0.1',
         'http://localhost',
+        'https://agenceimmo-883e1abf9f91.herokuapp.com'
     ]
 
 CSRF_COOKIE_DOMAINE = '192.168.1.90'
