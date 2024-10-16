@@ -10,10 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import os
-# import environ
-# env = environ.Env()
-# environ.Env.read_env()
+import environ
+env = environ.Env()
+environ.Env.read_env()
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,7 +30,10 @@ SECRET_KEY = 'django-insecure-q0hy5qb@3ptw8)8h65b0pc^86fxc8!x$8elx4#w(77&cy9pa%&
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '192.168.1.90',
+    '*',
+    '127.0.0.1',
+    'localhost',
+    '192.168.1.90'
 ]
 
 
@@ -41,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     
     'core',
@@ -49,6 +54,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -58,6 +64,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'agence_immo.urls'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 TEMPLATES = [
     {
@@ -83,12 +90,7 @@ WSGI_APPLICATION = 'agence_immo.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+
 
 # DATABASES = {
 #     'default': {
@@ -138,6 +140,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 STATICFILES_DIRS = [
     BASE_DIR / "static",
@@ -150,7 +153,33 @@ COMPRESS_ROOT = BASE_DIR / 'static'
 COMPRESS_ENABLED = True
 STATICFILES_FINDERS = ('compressor.finders.CompressorFinder',)
 
+CSRF_TRUSTED_ORIGINS = [
+        'http://192.168.1.90',    
+        'http://127.0.0.1',
+        'http://localhost',
+    ]
+
+CSRF_COOKIE_DOMAINE = '192.168.1.90'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'whiteNoise': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    },
+}

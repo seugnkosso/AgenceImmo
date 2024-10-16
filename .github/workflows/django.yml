@@ -1,0 +1,74 @@
+name : 'agenceImmo'
+
+on:
+  push:
+    branches: [ heroku ]
+  pull_request:
+    branches: [ heroku ]
+
+concurrency:
+    group: ${{ github.head_ref || github.run_id }}
+    cancel-in-progress: true
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 2
+      matrix:
+        python-version: [3.9, 3.11, 3.12]
+
+    steps:
+    - name: Checkout Code Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python Version ${{ matrix.python-version }}  
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    # - name: Run tests
+    #   run: |
+    #     python manage.py test 
+
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy
+    needs: [build]
+    steps:
+      - name : Checkout Code Repository
+        uses: actions/checkout@v4
+
+      - name : install Heroku CLI
+        run : |
+            curl https://cli-assets.heroku.com/install.sh | sh
+
+      - name : set Heroku BuildPack
+        run : heroku buildpacks:set heroku/python -a ${{ secrets.HEROKU_APP_NAME }}
+
+      - name : Verify requirements.txt and Procfil
+        run : |
+            echo 'Verify requirements.txt and Procfil'
+            ls -l requirements.txt
+            ls -l Procfile
+
+      - name : Deploy to Heroku
+        uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+          heroku_email: serigne-kosso.dieng@ism.edu.sn
+          branch: main
+          dontuseforce: 1
+      
+      - name : Run heroku ps:scale
+        run : |
+            heroku run python manage.py migrate -a ${{ secrets.HEROKU_APP_NAME }}
+        env:
+          Heroku_API_KEY: ${{ secrets.HEROKU_API_KEY }}
