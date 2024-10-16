@@ -2,9 +2,9 @@ name : 'agenceImmo'
 
 on:
   push:
-    branches: [ heroku ]
+    branches: [ deploy ]
   pull_request:
-    branches: [ heroku ]
+    branches: [ deploy ]
 
 concurrency:
     group: ${{ github.head_ref || github.run_id }}
